@@ -1,7 +1,9 @@
-// --- 아바타 업로드 및 폼 제어 로직 (Avatar Upload & Form Control Logic) ---
+// === [파일 개요] 아바타 업로드, 폼 유효성 검사, 티켓 생성/렌더링 통합 로직 ===
+// (Overview: Avatar Upload, Form Validation & Ticket Generation/Rendering Logic)
 
+// DOM이 모두 로드된 후 요소를 참조해야 getElementById가 안전하게 동작함 (Wait for DOM so element lookups don't return null)
 document.addEventListener('DOMContentLoaded', () => {
-  // DOM 요소 참조 (DOM Element References)
+  // 폼/티켓 화면 전환 요소 (Form & Ticket Screen Toggle Elements)
   const ticketForm = document.getElementById('ticket-form');
   const formSection = document.getElementById('form-section');
   const ticketSection = document.getElementById('ticket-section');
@@ -39,7 +41,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const ticketUserGithub = document.getElementById('ticket-user-github');
   const ticketNumber = document.getElementById('ticket-number');
 
+  // 현재 첨부된 아바타 파일 (Currently attached avatar file)
+  // 검증, 미리보기, 티켓 생성 전반에서 공유하는 단일 상태값 (Single shared state used by validation, preview rendering, and ticket generation)
   let uploadedFile = null;
+
+  // 이메일 형식 검증용 정규식 (Email format validation regex)
+  // 제출 시 검증과 실시간 입력 검증에서 공통으로 사용 (Shared by both submit-time and real-time validation)
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // 텍스트 입력 필드 검증 설정 (Text Input Field Validation Config)
+  // 필드별 요소/에러 메시지/검증 규칙을 한 곳에 모아 제출 검증과 실시간 검증에서 재사용 (Centralizes per-field elements & rules, reused by both submit validation and real-time clearance below)
+  const validationFields = [
+    {
+      input: fullNameInput,
+      errorContainer: nameErrorContainer,
+      errorText: nameErrorText,
+      validate: (value) => (value ? null : 'Please enter your full name.')
+    },
+    {
+      input: emailInput,
+      errorContainer: emailErrorContainer,
+      errorText: emailErrorText,
+      validate: (value) => {
+        if (!value) return 'Please enter your email address.';
+        if (!EMAIL_REGEX.test(value)) return 'Please enter a valid email address.';
+        return null;
+      }
+    },
+    {
+      input: githubInput,
+      errorContainer: githubErrorContainer,
+      errorText: githubErrorText,
+      validate: (value) => (value ? null : 'Please enter your GitHub username.')
+    }
+  ];
 
   // --- [아바타 업로드 영역 이벤트 처리 (Avatar Upload Area Event Handling)] ---
 
@@ -99,7 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
     avatarInput.click();
   });
 
-  // 아바타 파일 처리 및 유효성 검사 (Handle avatar file and validation)
+  /**
+   * 업로드된 파일의 형식과 용량을 검증한 뒤, 통과 시 미리보기를 렌더링합니다.
+   * (Validates uploaded file type/size, then renders a preview on success)
+   * @param {File} file - 사용자가 선택하거나 드롭한 파일 (File selected or dropped by the user)
+   */
   function handleAvatarFile(file) {
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     const maxSize = 500 * 1024; // 500KB
@@ -128,7 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.readAsDataURL(file);
   }
 
-  // 아바타 상태 에러 노출 (Show avatar validation error)
+  /**
+   * 아바타 영역에 에러 상태(메시지/색상/aria 속성)를 표시합니다.
+   * (Displays avatar error state: message, color, and aria attributes)
+   * @param {string} message - 사용자에게 보여줄 에러 메시지 (Error message shown to the user)
+   */
   function showAvatarError(message) {
     uploadedFile = null;
     avatarInput.value = '';
@@ -147,7 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.setAttribute('aria-describedby', 'avatar-hint');
   }
 
-  // 아바타 상태 에러 클리어 (Clear avatar validation error)
+  /**
+   * 아바타 에러 상태를 초기 힌트 텍스트/스타일로 되돌립니다.
+   * (Resets avatar error state back to the default hint text/style)
+   */
   function clearAvatarError() {
     avatarHint.textContent = 'Upload your photo (JPG or PNG, max size: 500KB).';
     avatarHint.classList.remove('text-orange-500');
@@ -160,7 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.removeAttribute('aria-invalid');
   }
 
-  // 아바타 리셋 (Reset avatar to initial state)
+  /**
+   * 아바타 업로드 상태를 완전히 초기화합니다 (파일/미리보기/에러 모두 제거).
+   * (Fully resets avatar upload state: file, preview, and error)
+   */
   function resetAvatar() {
     uploadedFile = null;
     avatarInput.value = '';
@@ -184,44 +233,35 @@ document.addEventListener('DOMContentLoaded', () => {
       isFormValid = false;
     }
 
-    // 2. 이름 검증 (Validate name)
-    const nameValue = fullNameInput.value.trim();
-    if (!nameValue) {
-      showInputError(fullNameInput, nameErrorContainer, nameErrorText, 'Please enter your full name.');
-      isFormValid = false;
-    } else {
-      clearInputError(fullNameInput, nameErrorContainer);
-    }
-
-    // 3. 이메일 검증 (Validate email)
-    const emailValue = emailInput.value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailValue) {
-      showInputError(emailInput, emailErrorContainer, emailErrorText, 'Please enter your email address.');
-      isFormValid = false;
-    } else if (!emailRegex.test(emailValue)) {
-      showInputError(emailInput, emailErrorContainer, emailErrorText, 'Please enter a valid email address.');
-      isFormValid = false;
-    } else {
-      clearInputError(emailInput, emailErrorContainer);
-    }
-
-    // 4. 깃허브 아이디 검증 (Validate GitHub Username)
-    const githubValue = githubInput.value.trim();
-    if (!githubValue) {
-      showInputError(githubInput, githubErrorContainer, githubErrorText, 'Please enter your GitHub username.');
-      isFormValid = false;
-    } else {
-      clearInputError(githubInput, githubErrorContainer);
-    }
+    // 2. 텍스트 필드 검증 (이름/이메일/깃허브) (Validate text fields: name/email/github)
+    validationFields.forEach(({ input, errorContainer, errorText, validate }) => {
+      const value = input.value.trim();
+      const errorMessage = validate(value);
+      if (errorMessage) {
+        showInputError(input, errorContainer, errorText, errorMessage);
+        isFormValid = false;
+      } else {
+        clearInputError(input, errorContainer);
+      }
+    });
 
     // 모든 검증 통과 시 티켓 생성 화면으로 전환 (Switch to ticket screen if all valid)
     if (isFormValid) {
+      const nameValue = fullNameInput.value.trim();
+      const emailValue = emailInput.value.trim();
+      const githubValue = githubInput.value.trim();
       generateTicket(nameValue, emailValue, githubValue);
     }
   });
 
-  // 입력 에러 표시 함수 (Show input field validation error)
+  /**
+   * 텍스트 입력 필드에 에러 스타일과 메시지를 표시합니다.
+   * (Applies error styling and message to a text input field)
+   * @param {HTMLElement} inputEl - 에러를 표시할 입력 필드 (Target input element)
+   * @param {HTMLElement} errorContainer - 에러 메시지를 담는 컨테이너 (Container wrapping the error message)
+   * @param {HTMLElement} errorTextEl - 에러 메시지 텍스트 요소 (Element holding the error text)
+   * @param {string} message - 표시할 에러 메시지 (Message to display)
+   */
   function showInputError(inputEl, errorContainer, errorTextEl, message) {
     inputEl.classList.add('border-orange-500', 'focus:ring-orange-500/20');
     inputEl.classList.remove('border-white/20', 'border-neutral-500', 'hover:border-white/40');
@@ -231,7 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
     errorContainer.classList.remove('hidden');
   }
 
-  // 입력 에러 클리어 함수 (Clear input field validation error)
+  /**
+   * 텍스트 입력 필드의 에러 스타일과 메시지를 제거합니다.
+   * (Removes error styling and message from a text input field)
+   * @param {HTMLElement} inputEl - 대상 입력 필드 (Target input element)
+   * @param {HTMLElement} errorContainer - 숨길 에러 메시지 컨테이너 (Error message container to hide)
+   */
   function clearInputError(inputEl, errorContainer) {
     inputEl.classList.remove('border-orange-500', 'focus:ring-orange-500/20');
     inputEl.classList.add('border-neutral-500');
@@ -242,27 +287,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 실시간 에러 정리 피드백 (Real-time error clearance on input)
-  fullNameInput.addEventListener('input', () => {
-    if (fullNameInput.value.trim()) {
-      clearInputError(fullNameInput, nameErrorContainer);
-    }
-  });
-
-  emailInput.addEventListener('input', () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (emailInput.value.trim() && emailRegex.test(emailInput.value.trim())) {
-      clearInputError(emailInput, emailErrorContainer);
-    }
-  });
-
-  githubInput.addEventListener('input', () => {
-    if (githubInput.value.trim()) {
-      clearInputError(githubInput, githubErrorContainer);
-    }
+  // validationFields의 동일한 validate 규칙을 재사용하여 제출 검증과 결과가 항상 일치하도록 보장 (Reuses the same validate rule from validationFields so this always agrees with submit-time validation)
+  validationFields.forEach(({ input, errorContainer, validate }) => {
+    input.addEventListener('input', () => {
+      if (!validate(input.value.trim())) {
+        clearInputError(input, errorContainer);
+      }
+    });
   });
 
   // --- [티켓 생성 및 렌더링 (Ticket Generation and Rendering)] ---
 
+  /**
+   * 입력값으로 티켓 데이터(이름/이메일/깃허브/번호/아바타)를 채우고 티켓 화면으로 전환합니다.
+   * (Fills ticket data from form input and switches to the ticket screen)
+   * @param {string} name - 검증을 통과한 이름 (Validated full name)
+   * @param {string} email - 검증을 통과한 이메일 (Validated email address)
+   * @param {string} github - 검증을 통과한 깃허브 아이디 (Validated GitHub username)
+   */
   function generateTicket(name, email, github) {
     // 깃허브 아이디 형식 자동 가공 (Auto-format GitHub username)
     let formattedGithub = github;
@@ -294,7 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 티켓 스케일 조절 함수 (Scale ticket wrapper to fit viewport)
+  /**
+   * 뷰포트 너비에 맞춰 600px 고정폭 티켓을 비율대로 축소합니다.
+   * (Scales the fixed 600px-wide ticket down proportionally to fit narrower viewports)
+   */
   function adjustTicketScale() {
     const wrapper = document.querySelector('.ticket-scaler-wrapper');
     const container = document.querySelector('.ticket-container');
@@ -315,7 +360,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 화면 크기 변경 시 호출 (Call on resize)
   window.addEventListener('resize', adjustTicketScale);
 
-  // 화면 전환 처리 (Switch screen section visibility)
+  /**
+   * 신청 폼을 숨기고 티켓 화면을 표시한 뒤, 스케일을 조정하고 화면 상단으로 스크롤합니다.
+   * (Hides the form, reveals the ticket screen, then adjusts its scale and scrolls to top)
+   */
   function switchToTicketScreen() {
     formSection.classList.add('hidden');
     ticketSection.classList.remove('hidden');

@@ -155,6 +155,7 @@
   background-image: linear-gradient(90deg, #F37362 0%, #FFF 100%);
 }
 
+/* === [전역 HTML 레이아웃 설정 (Global HTML Layout Configuration)] === */
 html {
   overflow-x: hidden;
   width: 100%;
@@ -165,7 +166,7 @@ body {
   font-family: var(--font-inconsolata);
   background-color: var(--color-neutral-900);
   color: var(--color-neutral-0);
-  background-image: 
+  background-image:
     url('./assets/images/pattern-squiggly-line-top.svg'),
     url('./assets/images/pattern-squiggly-line-bottom-mobile-tablet.svg'),
     url('./assets/images/background-mobile.png');
@@ -173,11 +174,13 @@ body {
   background-position: right top 24px, right -212px bottom -21px, center;
   background-size: 112px 52px, 814px 274px, cover;
   min-height: 100vh;
+  width: 100%;
 }
 
+/* 태블릿 이상 반응형 배경 및 패딩 (Tablet+ Responsive Background & Padding) */
 @media (min-width: 768px) {
   body {
-    background-image: 
+    background-image:
       url('./assets/images/pattern-squiggly-line-top.svg'),
       url('./assets/images/background-tablet.png');
     background-size: 232px 108.2px, cover;
@@ -186,19 +189,29 @@ body {
     padding-left: 32px !important;
     padding-right: 32px !important;
   }
+  .pattern-squiggly-bottom {
+    left: -260px;
+    bottom: -320px;
+  }
 }
 
+/* 데스크톱 반응형 배경 (Desktop Responsive Background) */
 @media (min-width: 1024px) {
   body {
-    background-image: 
+    background-image:
       url('./assets/images/pattern-squiggly-line-top.svg'),
       url('./assets/images/background-desktop.png');
-    background-size: 232px 108.2px, cover;
-    background-position: right top 88px, center;
+    background-size: 1408px 243px, cover;
+    background-position: right -450px top 40px, center;
+  }
+  .pattern-squiggly-bottom {
+    left: -50px;
+    bottom: -254px;
   }
 }
 
 /* === [아바타 이미지 규격 고정 (Avatar Image Dimensions Lock)] === */
+/* Tailwind 유틸리티 클래스 순서와 무관하게 정사각형 비율을 강제 고정 (Forces a fixed square aspect ratio regardless of Tailwind utility class order) */
 #ticket-avatar {
   width: 80px !important;
   height: 80px !important;
