@@ -10,12 +10,12 @@
 </head>
 
 <body
-  class="flex flex-col items-center min-h-screen pt-[33px] px-[16px] pb-[114px] font-inconsolata relative overflow-x-hidden">
+  class="flex flex-col items-center min-h-screen pt-[33px] px-[16px] pb-[114px] font-inconsolata relative">
 
   <!-- === [배경 장식 패턴 영역 (Background Decorative Pattern Section)] === -->
   <div class="absolute top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
     <!-- 원형 패턴 (Circle Pattern) -->
-    <img src="./assets/images/pattern-circle.svg" alt="" class="hidden md:block absolute top-[10%] left-5 opacity-40">
+    <img src="./assets/images/pattern-circle.svg" alt="" class="hidden md:block absolute md:top-[-100px] md:left-[-20px]">
     <img src="./assets/images/pattern-circle.svg" alt=""
       class="absolute w-[107px] h-[107px] bottom-[327px] right-[-42px]" width="107" height="107">
     <!-- 선 패턴 (Lines Pattern) -->
@@ -23,26 +23,31 @@
       class="absolute top-0 left-0 w-full h-full object-cover">
   </div>
 
+  <!-- === [아래쪽 물결 패턴 - 태블릿 이상 전용 (Bottom Squiggly Pattern - Tablet+)] === -->
+  <img src="./assets/images/pattern-squiggly-line-bottom-desktop.svg" alt=""
+    class="hidden md:block fixed pointer-events-none z-0"
+    style="left: -260px; bottom: -320px; width: 1071px; height: 1071px;">
+
   <!-- === [메인 콘텐츠 레이아웃 (Main Content Layout)] === -->
-  <main class="w-full max-w-[600px] flex flex-col items-center z-10 relative gap-[40px]">
+  <main class="w-full max-w-[600px] flex flex-col items-center z-10 relative gap-[40px] md:gap-[60px]">
 
     <!-- 로고 영역 (Logo Section) -->
     <header class="flex justify-center m-0">
-      <img src="./assets/images/logo-full.svg" alt="Coding Conf 로고" class="w-[167px] h-[24px]" width="167" height="24">
+      <img src="./assets/images/logo-full.svg" alt="Coding Conf 로고" class="w-[167px] h-[24px] md:w-[209px] md:h-[30px]" width="167" height="24">
     </header>
 
     <!-- === [신청 폼 영역 (Application Form Section)] === -->
     <section id="form-section" class="w-full flex flex-col items-center text-center gap-[40px]">
-      <div class="flex flex-col gap-[20px]">
-        <h1 class="text-preset-1-mobile lg:text-preset-1 text-neutral-0 font-extrabold max-w-[500px]">
+      <div class="flex flex-col gap-[20px] md:w-[705px] md:max-w-[705px]">
+        <h1 class="text-preset-1-mobile md:text-preset-1 lg:text-preset-1 text-neutral-0 font-extrabold max-w-[500px] md:max-w-none">
           Your Journey to Coding Conf 2025 Starts Here!
         </h1>
-        <p class="text-preset-4-mobile lg:text-preset-4 text-neutral-300">
+        <p class="text-preset-4-mobile md:text-preset-4 lg:text-preset-4 text-neutral-300">
           Secure your spot at next year's biggest coding conference.
         </p>
       </div>
 
-      <form id="ticket-form" class="w-full flex flex-col text-left gap-spacing-300 m-0" novalidate>
+      <form id="ticket-form" class="w-full flex flex-col text-left gap-spacing-300 m-0 md:w-[522px] md:max-w-[522px] md:self-center" novalidate>
 
         <!-- 아바타 업로드 필드 (Avatar Upload Field) -->
         <div class="flex flex-col gap-[12px]">
@@ -167,13 +172,13 @@
     <section id="ticket-section" class="hidden w-full flex flex-col items-center text-center gap-[72px]">
 
       <!-- 완료 메시지 (Completion Message) -->
-      <div class="flex flex-col gap-[20px]">
-        <h1 class="text-preset-1-mobile lg:text-preset-1 text-neutral-0 font-extrabold max-w-[500px] leading-tight">
+      <div class="flex flex-col gap-[20px] md:w-[705px] md:max-w-[705px]">
+        <h1 class="text-preset-1-mobile md:text-preset-1 lg:text-preset-1 text-neutral-0 font-extrabold max-w-[500px] md:max-w-none leading-tight">
           Congrats, <span id="ticket-user-name-title"
             class="text-transparent bg-clip-text bg-gradient-01 font-extrabold">Jonatan Kristof</span>! Your ticket is
           ready.
         </h1>
-        <p class="text-preset-4-mobile lg:text-preset-4 text-neutral-300 max-w-[500px]">
+        <p class="text-preset-4-mobile md:text-preset-4 lg:text-preset-4 text-neutral-300 max-w-[500px] md:max-w-none">
           We've emailed your ticket to <span id="ticket-user-email" class="text-orange-500">jonatan@email.com</span> and
           will send updates in the run up to the event.
         </p>
@@ -197,7 +202,7 @@
               <!-- 이벤트 정보 (Event Info) -->
               <div class="flex flex-col gap-[12px]">
                 <img src="./assets/images/logo-full.svg" alt="Coding Conf" class="h-[40px] self-start" width="278" height="40">
-                <p class="text-preset-6-mobile text-neutral-300 pl-[56px] tracking-wide">Jan 31, 2025 / Austin, TX</p>
+                <p class="text-preset-6-mobile md:text-preset-6 text-neutral-300 pl-[56px] tracking-wide">Jan 31, 2025 / Austin, TX</p>
               </div>
 
               <!-- 사용자 프로필 (User Profile) -->
@@ -206,10 +211,10 @@
                   class="w-[80px] h-[80px] shrink-0 rounded-radius-12 object-cover border border-neutral-500 bg-white/10"
                   style="width: 80px; height: 80px; aspect-ratio: 1 / 1;">
                 <div class="flex flex-col gap-[8px] w-[152px]">
-                  <h2 id="ticket-user-name" class="text-[20px] text-neutral-0 font-medium leading-none mb-1">Jonatan Kristof</h2>
+                  <h2 id="ticket-user-name" class="text-[20px] md:text-preset-3 text-neutral-0 font-medium leading-none mb-1">Jonatan Kristof</h2>
                   <div class="flex items-center gap-spacing-075">
                     <img src="./assets/images/icon-github.svg" alt="" class="w-5 h-5 opacity-50">
-                    <span id="ticket-user-github" class="text-preset-6-mobile text-neutral-300">@jonatankristof0101</span>
+                    <span id="ticket-user-github" class="text-preset-6-mobile md:text-preset-5 text-neutral-300">@jonatankristof0101</span>
                   </div>
                 </div>
               </div>
